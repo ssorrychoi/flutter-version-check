@@ -1,0 +1,55 @@
+name: Check Flutter SDK Version
+
+on:
+  schedule:
+    - cron: '40 2 * * *' # 매일 자정에 실행
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Check Flutter SDK version and notify Slack
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        import requests
+
+        # Slack Webhook URL
+        SLACK_WEBHOOK_URL = 'YOUR_SLACK_WEBHOOK_URL'
+
+        # Flutter SDK의 최신 버전을 가져옵니다.
+        response = requests.get('https://api.github.com/repos/flutter/flutter/releases/latest')
+        latest_version = response.json()['tag_name']
+
+        # 이전 버전 정보를 읽습니다.
+        try:
+            with open('flutter_version.txt', 'r') as file:
+                last_version = file.read().strip()
+        except FileNotFoundError:
+            last_version = None
+
+        # 버전이 업데이트되었는지 확인합니다.
+        if latest_version != last_version:
+            # Slack에 알림을 보냅니다.
+            payload = {
+                'text': f'Flutter SDK has a new version: {latest_version}'
+            }
+            requests.post(SLACK_WEBHOOK_URL, json=payload)
+
+            # 최신 버전 정보를 파일에 저장합니다.
+            with open('flutter_version.txt', 'w') as file:
+                file.write(latest_version)
