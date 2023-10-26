@@ -2,7 +2,7 @@ name: Check Flutter SDK Version
 
 on:
   schedule:
-    - cron: '40 2 * * *' # 매일 자정에 실행
+    - cron: '0 0 * * *' # 매일 자정에 실행
 
 jobs:
   check-version:
@@ -28,12 +28,13 @@ jobs:
       run: |
         import requests
 
-        # Slack Webhook URL
-        SLACK_WEBHOOK_URL = 'YOUR_SLACK_WEBHOOK_URL'
-
         # Flutter SDK의 최신 버전을 가져옵니다.
-        response = requests.get('https://api.github.com/repos/flutter/flutter/releases/latest')
-        latest_version = response.json()['tag_name']
+        response = requests.get('https://api.github.com/repos/flutter/flutter/releases')
+        releases = response.json()
+
+        stable_release = next((release for release in releases if "stable" in release["body"].lower()), None)
+        if stable_release:
+          latest_stable_version = stable_release["tag_name"]
 
         # 이전 버전 정보를 읽습니다.
         try:
