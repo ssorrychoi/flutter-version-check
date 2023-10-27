@@ -1,9 +1,8 @@
 name: Check Flutter SDK Version
 
 on:
-  push: 
-  # schedule:
-  #   - cron: '0 0 * * *' # 매일 자정에 실행
+  schedule:
+    - cron: '30 1 * * *' # 매일 자정에 실행
 
 jobs:
   check-version:
