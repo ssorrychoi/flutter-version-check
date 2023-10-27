@@ -1,4 +1,7 @@
 import requests
+import os
+
+SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
 
 # Flutter SDK의 최신 버전을 가져옵니다.
 response = requests.get('https://api.github.com/repos/flutter/flutter/releases')
